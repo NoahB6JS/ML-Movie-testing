@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import sqlite3
+from api_movie import get_popular_movie
 
 
 def setup_database():
@@ -97,6 +98,8 @@ class App(ctk.CTk):
             text=f"Hello, {username}",
             font=("Arial", 24)
         ).pack(pady=100)
+        
+        
 
 
 
