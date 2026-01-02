@@ -105,7 +105,10 @@ class App(ctk.CTk):
         
         ctk.CTkButton(self, text="Discover").pack(pady=10)
         ctk.CTkButton(self, text="Rate").pack(pady=10)
-        ctk.CTkButton(self, text="Account").pack(pady=10)
+        ctk.CTkButton(
+            self,
+            text="Account",
+            command=lambda: self.account_page(username)).pack(pady=10)
         # Canvas + Scrollbar for scrolling
         canvas = ctk.CTkCanvas(self, highlightthickness=0)
         scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
@@ -148,34 +151,37 @@ class App(ctk.CTk):
         poster_label.image = photo  
         poster_label.pack(side="left", padx=10, pady=10)
 
-        # Title and Like button
+        # Title
         info_frame = ctk.CTkFrame(frame, fg_color="transparent")
         info_frame.pack(side="left", fill="both", expand=True, padx=10)
 
         title_label = ctk.CTkLabel(info_frame, text=title, font=("Arial", 16))
         title_label.pack(anchor="nw", pady=10)
-
+        #------------Like button
         like_button = ctk.CTkButton(info_frame, text="Like", command=lambda t=title: self.like_movie(t))
         like_button.pack(anchor="nw", pady=10)
+        #------------Dislike button
+        dislike_button = ctk.CTkButton(info_frame, text="Dislike", command=lambda t=title: self.like_movie(t))
+        dislike_button.pack(anchor="nw", pady=10)
+        #------------watchlist button
+        watchlater_button = ctk.CTkButton(info_frame, text="Watch later", command=lambda t=title: self.like_movie(t))
+        watchlater_button.pack(anchor="nw", pady=10)
+        
 
     def like_movie(self, title):
         print(f"You liked: {title}")
         
-    def account_page(self):
+    def account_page(self, username):
         self.clear()
-        
-        ctk.CTkButton(self, text="Discover").pack(pady=10)
+
+        ctk.CTkButton(
+            self,
+            text="Discover",
+            command=lambda: self.home_screen(username)
+        ).pack(pady=10)
+
         ctk.CTkButton(self, text="Rate").pack(pady=10)
         ctk.CTkButton(self, text="Account").pack(pady=10)
-        
-        # Canvas + Scrollbar for scrolling
-        
-        canvas = ctk.CTkCanvas(self, highlightthickness=0)
-        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        scrollbar.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
     
     
 
