@@ -1,7 +1,14 @@
 import customtkinter as ctk
 import sqlite3
-from api_movie import get_popular_movie
+from api_movie import get_popular_movie  # your function that returns title, poster_url
+import requests
+from io import BytesIO
+from PIL import Image, ImageTk
 
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# ---------------- DATABASE ---------------- #
 
 def setup_database():
     db = sqlite3.connect("movies.db")
@@ -43,12 +50,13 @@ def user_exists(username):
     db.close()
     return user is not None
 
+# ---------------- APP ---------------- #
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.geometry("400x300")
+        self.geometry("450x600")
         self.title("Movie System")
 
         setup_database()
@@ -58,7 +66,7 @@ class App(ctk.CTk):
         for widget in self.winfo_children():
             widget.destroy()
 
-
+    # -------- LOGIN SCREEN -------- #
     def login_screen(self):
         self.clear()
 
@@ -89,21 +97,68 @@ class App(ctk.CTk):
         else:
             self.message.configure(text="Username already exists")
 
-
+    # -------- HOME SCREEN (Scrollable Movie Feed) -------- #
     def home_screen(self, username):
         self.clear()
 
-        ctk.CTkLabel(
-            self,
-            text=f"Hello, {username}",
-            font=("Arial", 24)
-        ).pack(pady=100)
-        
-        
+        ctk.CTkLabel(self, text=f"Hello, {username}!", font=("Arial", 24)).pack(pady=10)
 
+        # Canvas + Scrollbar for scrolling
+        canvas = ctk.CTkCanvas(self, highlightthickness=0)
+        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
 
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
 
+        # Frame inside canvas to hold movie widgets
+        self.inner_frame = ctk.CTkFrame(canvas, fg_color="transparent")
+        canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
 
+        # Add multiple movies
+        for i in range(10):  # show 10 random movies
+            self.add_movie_widget(self.inner_frame)
+
+        # Update scroll region
+        self.inner_frame.update_idletasks()
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    def add_movie_widget(self, parent):
+        title, poster_url = get_popular_movie()
+
+        frame = ctk.CTkFrame(parent, corner_radius=10, fg_color="#2b2b2b")
+        frame.pack(pady=10, padx=10, fill="x")
+
+        # Load poster
+        photo = None
+        if poster_url and poster_url != "N/A":
+            try:
+                response = requests.get(poster_url)
+                img_data = response.content
+                img = Image.open(BytesIO(img_data))
+                img = img.resize((120, 180))
+                photo = ImageTk.PhotoImage(img)
+            except:
+                pass
+
+        poster_label = ctk.CTkLabel(frame, image=photo, text="")
+        poster_label.image = photo  # keep reference
+        poster_label.pack(side="left", padx=10, pady=10)
+
+        # Title and Like button
+        info_frame = ctk.CTkFrame(frame, fg_color="transparent")
+        info_frame.pack(side="left", fill="both", expand=True, padx=10)
+
+        title_label = ctk.CTkLabel(info_frame, text=title, font=("Arial", 16))
+        title_label.pack(anchor="nw", pady=10)
+
+        like_button = ctk.CTkButton(info_frame, text="Like", command=lambda t=title: self.like_movie(t))
+        like_button.pack(anchor="nw", pady=10)
+
+    def like_movie(self, title):
+        print(f"You liked: {title}")
+
+# ---------------- DEBUG FUNCTION ---------------- #
 def show_account_data():
     db = sqlite3.connect("movies.db")
     cursor = db.cursor()
@@ -116,7 +171,8 @@ def show_account_data():
 
     db.close()
 
-
-app = App()
-app.mainloop()
-show_account_data()
+# ---------------- RUN ---------------- #
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
+    show_account_data()
