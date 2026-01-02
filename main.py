@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import sqlite3
-from api_movie import get_popular_movie  # your function that returns title, poster_url
+from api_movie import get_popular_movie  
 import requests
 from io import BytesIO
 from PIL import Image, ImageTk
@@ -102,7 +102,10 @@ class App(ctk.CTk):
         self.clear()
 
         ctk.CTkLabel(self, text=f"Hello, {username}!", font=("Arial", 24)).pack(pady=10)
-
+        
+        ctk.CTkButton(self, text="Discover").pack(pady=10)
+        ctk.CTkButton(self, text="Rate").pack(pady=10)
+        ctk.CTkButton(self, text="Account").pack(pady=10)
         # Canvas + Scrollbar for scrolling
         canvas = ctk.CTkCanvas(self, highlightthickness=0)
         scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
@@ -116,10 +119,10 @@ class App(ctk.CTk):
         canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
 
         # Add multiple movies
-        for i in range(10):  # show 10 random movies
+        for i in range(15):  
             self.add_movie_widget(self.inner_frame)
 
-        # Update scroll region
+       
         self.inner_frame.update_idletasks()
         canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -129,7 +132,7 @@ class App(ctk.CTk):
         frame = ctk.CTkFrame(parent, corner_radius=10, fg_color="#2b2b2b")
         frame.pack(pady=10, padx=10, fill="x")
 
-        # Load poster
+        
         photo = None
         if poster_url and poster_url != "N/A":
             try:
@@ -142,7 +145,7 @@ class App(ctk.CTk):
                 pass
 
         poster_label = ctk.CTkLabel(frame, image=photo, text="")
-        poster_label.image = photo  # keep reference
+        poster_label.image = photo  
         poster_label.pack(side="left", padx=10, pady=10)
 
         # Title and Like button
@@ -157,6 +160,24 @@ class App(ctk.CTk):
 
     def like_movie(self, title):
         print(f"You liked: {title}")
+        
+    def account_page(self):
+        self.clear()
+        
+        ctk.CTkButton(self, text="Discover").pack(pady=10)
+        ctk.CTkButton(self, text="Rate").pack(pady=10)
+        ctk.CTkButton(self, text="Account").pack(pady=10)
+        
+        # Canvas + Scrollbar for scrolling
+        
+        canvas = ctk.CTkCanvas(self, highlightthickness=0)
+        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+    
+    
 
 # ---------------- DEBUG FUNCTION ---------------- #
 def show_account_data():
@@ -171,7 +192,7 @@ def show_account_data():
 
     db.close()
 
-# ---------------- RUN ---------------- #
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
